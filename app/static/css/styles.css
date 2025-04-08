@@ -1,0 +1,215 @@
+* {
+    box-sizing: border-box;
+}
+
+body, html {
+    display: flex;
+    flex-direction: column;
+    font-family: Roboto, sans-serif;
+    font-size: 12px;
+    align-items: center;
+    width: 100%;
+    margin: 0px;
+    height : 100%;
+}
+
+.header {
+    background-color: black;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 10px;
+    font-size: 20px;
+}
+
+.org-name {
+    margin-left: 50%;
+}
+
+main {
+    position: relative;
+    min-height: calc(100vh - 100px);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+    flex: 1;
+}
+
+.content {
+    max-width: 800px;
+    width: 100%;
+    margin-top: 50%;
+}
+
+.search-agent-container form input {
+    width: 300px;
+    margin-bottom: 10px;
+}
+
+.message {
+    margin-bottom: 5px;
+}
+
+.message.success {
+    color: green;
+}
+
+.message.error {
+    color: red;
+}
+
+button {
+    cursor: pointer;
+    color: black;
+    background: #E0E0E0;
+    border-radius: 5px;
+    border: black 1px solid;
+}
+
+button:hover {
+    color: black;
+    background: white;
+}
+
+.db-table {
+    margin-bottom: 10px;
+}
+
+table, td, th {
+  border-collapse: collapse;
+  border: 1px solid black;
+}
+
+.db-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+}
+
+.add-agent {
+    width: 500px;
+}
+
+.add-agent form button {
+    width: 120px;
+}
+
+.add-agent h1 {
+    margin-left: 10px;
+}
+
+.add-agent form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 0px 10px 0px 10px;
+    gap: 5px;
+}
+
+.nickname-field {
+    display: flex;
+    width: 100%;
+    gap: 10px;
+}
+
+.nickname-field input {
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.nickname-field button {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.buttons-form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+.edit-agent {
+    width: 380px;
+}
+
+
+.search-id-form .message.error {
+    margin-top: 5px;
+}
+
+.edit-agent-form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 10px 10px 0px -10px;
+    gap: 5px;
+}
+
+.edit-agent-form form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 0px 10px 0px 10px;
+    gap: 5px;
+}
+
+.edit-agent-form .buttons-form button {
+    width: 120px;
+}
+
+.delete-agent {
+    width: 380px;
+}
+
+.delete-agent .buttons-form button {
+    width: 120px;
+}
+
+.delete-agent-confirmation {
+    margin-top: 5px;
+}
+
+h1 {
+    font-size: 14px;
+}
+
+.clear-db-button button {
+    background: red;
+}
+
+
+.modal, modal.shown {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border: 1px solid black;
+    border-radius: 10px;
+    z-index: 10;
+    background: white;
+    padding: 20px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 10px 10px 15px rgba(0, 0, 0, 0.2);
+    background: #FBFBFB;
+}
+
+.hidden {
+    display: none;
+}
+
+.footer {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    background-color: black;
+    color: white;
+    padding: 10px;
+}
+

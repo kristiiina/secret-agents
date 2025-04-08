@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <title>ADB</title>
+</head>
+<body>
+    <header class="header" lang="en">
+        <div class="org-name">ASA</div>
+        <div class="clear-db-button">
+            <a href="{{ url_for('clear_db') }}">
+                <button type="submit">Тревога</button>
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <div class="content">
+            {% if agents %}
+                <div class="search-agent-container">
+                    <form action="{{ url_for ('search_agent') }}" method="GET">
+                        <input type="text" name="nickname" value="{{ nickname }}" placeholder="Введите никнейм для поиска">
+                        <button type="submit">Искать</button>
+                    </form>
+                </div>
+            {% endif %}
+
+            <div class="message-container">
+                {% with messages = get_flashed_messages(with_categories=True) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            {% set message_class = 'message' %}
+                            {% if category == 'success' %}
+                                {% set message_class = message_class + ' success' %}
+                            {% elif category == 'error' %}
+                                {% set message_class = message_class + ' error' %}
+                            {% endif %}
+                            <div class="{{ message_class }}">
+                                <strong>{{ message }}</strong>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+
+            <div class="show-record modal {% if agent %}shown{% else %}hidden{% endif %}">
+                {% if agent %}
+                    <h1>Досье агента:</h1>
+                    <ul>
+                        <li>Никнейм: {{ agent.nickname }}</li>
+                        <li>Телефон: {{ agent.phone }}</li>
+                        <li>Email: {{ agent.email }}</li>
+                        <li>Уровень доступа: {{ agent.access_level }}</li>
+                    </ul>
+                    <a href="{{ url_for('agents') }}">
+                        <button type="button">Ок</button>
+                    </a>
+
+                {% endif %}
+            </div>
+
+            <div class="db-table">
+                {% if agents %}
+                    <table border="1">
+                        <tr>
+                            <th>ID</th>
+                            <th>Никнейм</th>
+                            <th>Телефон</th>
+                            <th>E-mail</th>
+                            <th>Уровень доступа</th>
+                        </tr>
+                    {% for agent in agents %}
+                        <tr>
+                            <td>{{ agent.id }}</td>
+                            <td>{{ agent.nickname }}</td>
+                            <td>{{ agent.phone }}</td>
+                            <td>{{ agent.email }}</td>
+                            <td>{{ agent.access_level }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                        Нет данных для отображения
+                {% endif %}
+                </table>
+            </div>
+
+            <div class="db-buttons">
+            <a href="{{ url_for('add_agent') }}" id="add-agent-button">
+                <button type="submit">Добавить</button>
+            </a>
+            {% if agents %}
+                <a href="{{ url_for('edit_agent') }}" id="edit-agent-button">
+                    <button type="submit">Изменить</button>
+                </a>
+                <a href="{{ url_for('delete_agent') }}" id="delete-agent-button">
+                    <button type="submit">Удалить</button>
+                </a>
+            {% endif %}
+        </div>
+
+        {% if show_add_agent %}
+            <div class="add-agent modal">
+                <h1>Добавление записи</h1>
+                <form action="{{ url_for('add_agent') }}" method="POST">
+
+                    <label for="nickname">Никнейм:</label>
+                    <div class="nickname-field">
+                        <input type="text" name="agent-nickname" id="nickname"
+                               placeholder="Введите уникальный никнейм из букв"
+                               value="{{ nickname }}">
+                        <button type="button"
+                                onclick="location.href='{{ url_for('generate_nickname') }}?phone={{ request.form.get('agent-phone', '') }}&email={{ request.form.get('agent-email', '') }}&access_level={{ request.form.get('agent-access-level', '') }}'">
+                            Сгенерировать
+                        </button>
+                    </div>
+
+                    {% if errors and errors.nickname %}
+                        <div class="message error">{{ errors.nickname }}</div>
+                    {% endif %}
+
+                    <label for="phone">Телефон:</label>
+                    <input type="text" name="agent-phone" id="phone" placeholder="Введите номер телефона для экстренной связи (11 цифр)" value="{{ phone }}" required>
+                    {% if errors and errors.phone %}
+                        <div class="message error">{{ errors.phone }}</div>
+                    {% endif %}
+
+                    <label for="email">E-mail:</label>
+                    <input type="text" name="agent-email" id="email" placeholder="Введите адрес электронной почты для секретных сообщений" value="{{ email }}" required>
+                    {% if errors and errors.email %}
+                        <div class="message error">{{ errors.email }}</div>
+                    {% endif %}
+
+                    <label for="access-level">Уровень доступа:</label>
+                    <select name="agent-access-level" id="access-level" required>
+                        <option value=""></option>
+                        <option value="confidential" {{ 'selected' if access_level == 'confidential' }}>Confidential</option>
+                        <option value="secret" {{ 'selected' if access_level == 'secret' }}>Secret</option>
+                        <option value="top secret" {{ 'selected' if access_level == 'top secret' }}>Top secret</option>
+                    </select>
+
+                    <div class="buttons-form">
+                        <button type="submit">Сохранить</button>
+                        <a href="{{ url_for('close_modal') }}">
+                            <button type="button">Отмена</button>
+                        </a>
+                    </div>
+
+                </form>
+            </div>
+        {% endif %}
+
+        {% if show_edit_agent %}
+            <div class="edit-agent modal">
+                <h1>Изменение записи</h1>
+                <form class="search-id-form" action="{{ url_for('edit_agent') }}" method="GET">
+                    <label for="edit-agent-id">ID:</label>
+                    <input type="text" id="edit-agent-id" name="agent-id" value="{{ agent_id if agent_id else '' }}" placeholder="Введите id агента">
+
+                    <button type="submit">Искать</button>
+                    <a href="{{ url_for('close_modal') }}" class="cancel-button {{ 'shown' if not id_found else 'hidden' }}">
+                        <button type="button">Отмена</button>
+                    </a>
+                    {% if errors and errors.id %}
+                        <div class="message error">{{ errors.id }}</div>
+                    {% endif %}
+                </form>
+
+                <div class="edit-agent-form {{ 'shown' if id_found else 'hidden' }}">
+                    <form action="{{ url_for('update_agent', agent_id=agent_id) if agent_id else '' }}" method="POST">
+                        <label for="nickname-edit">Никнейм:</label>
+                        <input type="text" id="nickname-edit" name="nickname-edit" value="{{ nickname }}">
+                        {% if errors and errors.nickname %}
+                            <div class="message error">{{ errors.nickname }}</div>
+                        {% endif %}
+
+                        <label for="phone-edit">Телефон:</label>
+                        <input type="text" id="phone-edit" name="phone-edit" value="{{ phone }}">
+                        {% if errors and errors.phone %}
+                            <div class="message error">{{ errors.phone }}</div>
+                        {% endif %}
+
+                        <label for="email-edit">E-mail:</label>
+                        <input type="text" id="email-edit" name="email-edit" value="{{ email }}">
+                        {% if errors and errors.email %}
+                            <div class="message error">{{ errors.email }}</div>
+                        {% endif %}
+
+                        <label for="access-level-edit">Уровень доступа:</label>
+                        <select name="access-level-edit" id="access-level-edit" required>
+                            <option value="confidential" {{ 'selected' if access_level == 'confidential' }}>Confidential</option>
+                            <option value="secret" {{ 'selected' if access_level == 'secret' }}>Secret</option>
+                            <option value="top secret" {{ 'selected' if access_level == 'top secret' }}>Top secret</option>
+                        </select>
+
+                        <div class="buttons-form">
+                            <button type="submit">Сохранить</button>
+                            <a href="{{ url_for('close_modal') }}">
+                                <button type="button">Отмена</button>
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if show_delete_agent %}
+            <div class="delete-agent modal">
+                <h1>Удаление записи</h1>
+                <form class="search-id-form" action="{{ url_for('delete_agent') }}" method="GET">
+                    <label for="delete-agent-id">ID:</label>
+                    <input type="text" id="delete-agent-id" name="agent-id" value="{{ agent_id if agent_id else '' }}" placeholder="Введите id агента">
+                    <button type="submit">Искать</button>
+                    <a href="{{ url_for('close_modal') }}" class="cancel-button {{ 'shown' if not agent_id else 'hidden' }}">
+                        <button type="button">Отмена</button>
+                    </a>
+                    {% if errors and errors.id %}
+                        <div class="message error">{{ errors.id }}</div>
+                    {% endif %}
+                </form>
+
+                <div class="delete-agent-confirmation {{ 'shown' if id_found else 'hidden' }}">
+                    <div>
+                        Подтвердите удаление записи об агенте:
+                        <ul>
+                            <li>ID: {{ agent_id }}</li>
+                            <li>Никнейм: {{ nickname }}</li>
+                            <li>Телефон: {{ phone }}</li>
+                            <li>Почта: {{ email }}</li>
+                            <li>Уровень доступа: {{access_level }}</li>
+                        </ul>
+                        <strong>Это действие нельзя отменить!</strong>
+                    </div>
+
+                    <div class="buttons-form">
+                        <form method="POST" action="{{ url_for('confirm_delete_agent', agent_id=agent_id) if agent_id else ''}}">
+                            <button type="submit">Подтверждаю</button>
+                        </form>
+                        <a href="{{ url_for('close_modal') }}">
+                            <button type="button">Отмена</button>
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        {% endif %}
+
+        </div>
+
+        {% if show_clear_db %}
+            <div class="clear-db modal">
+                <div class="confirm-clear-db">
+                    Подтвердите удаление всей базы данных. <strong>Это действие нельзя отменить!</strong>
+                </div>
+
+                <div class="buttons-form">
+                    <form method="POST" action="{{ url_for('clear_db') }}">
+
+                    <button type="submit">Подтверждаю</button>
+
+                    <a href="{{ url_for('close_modal') }}">
+                        <button type="button" class="cancel-button">Отмена</button>
+                    </a>
+                </form>
+                </div>
+
+            </div>
+        {% endif %}
+
+    </main>
+
+    <footer class="footer" lang="en">
+        <div class="copyright-footer">
+            &copy; {{ current_year }} Agency of Secret Agents
+        </div>
+    </footer>
+</body>
+</html>
